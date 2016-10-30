@@ -7,9 +7,16 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Core;
+using Microsoft.EntityFrameworkCore;
 
-namespace WebView
+namespace MyBlog
 {
+    public class GlobalSetting
+    {
+        public int MAX_COUNT_POSTS { get; set; }
+    }
+
     public class Startup
     {
         public Startup(IHostingEnvironment env)
@@ -18,6 +25,7 @@ namespace WebView
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddJsonFile("config.json") // подключаем файл конфигурации
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
         }
@@ -27,6 +35,19 @@ namespace WebView
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // получаем строку подключения из файла конфигурации
+            string connection = Configuration.GetConnectionString("ConnectionStrings");
+            // добавляем контекст MobileContext в качестве сервиса в приложение
+            services.AddDbContext<DataBaseContext>(options =>
+                options.UseSqlServer(connection));
+
+            // Настройка параметров и DI
+            services.AddOptions();
+
+            // создание объекта GlobalSetting по ключам из конфигурации
+            services.Configure<GlobalSetting>(Configuration);
+
+
             // Add framework services.
             services.AddMvc();
         }
