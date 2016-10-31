@@ -17,6 +17,7 @@ namespace Core
 
     public enum StateEnum
     {
+        Public = 0,
         Removed = 1,
         Hidden = 2,
         Locked = 3
@@ -26,7 +27,7 @@ namespace Core
     {
         public int Id { get; set; }
 
-        [Range(1, 3)]
+       // [Range(1, 3)]
         public StateEnum StateElement { get; set; }
     }
 
@@ -68,6 +69,18 @@ namespace Core
         public Post()
         {
             Tags = new List<TagCollection>();
+        }
+
+        public Post(string title, string text, User author, DateTime dateCreate, List<TagCollection> tags, State state)
+        {
+            Title = title;
+            Text = text;
+            User = author;
+            Date = dateCreate;
+            Tags = tags;
+            State = state;
+
+            Coments = new List<Coment>();
         }
     }
 
@@ -197,7 +210,10 @@ namespace Core
     }
 
 
+
   
+
+
     public class DataBaseContext : DbContext
     {
         public DbSet<Post> Posts { get; set; }
