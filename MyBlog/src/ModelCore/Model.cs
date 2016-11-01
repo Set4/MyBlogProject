@@ -12,7 +12,7 @@ using System.Runtime.InteropServices;
 
 
 
-namespace Core
+namespace ModelCore
 {
 
     public enum StateEnum
@@ -48,7 +48,8 @@ namespace Core
 
         [Required]
         public DateTime Date { get; set; }
-
+        public DateTime DateChange { get; set; }
+        
         public int Views { get; set; }
 
 
@@ -71,12 +72,12 @@ namespace Core
             Tags = new List<TagCollection>();
         }
 
-        public Post(string title, string text, User author, DateTime dateCreate, List<TagCollection> tags, State state)
+        public Post(string title, string text, User author, List<TagCollection> tags, State state)
         {
             Title = title;
             Text = text;
             User = author;
-            Date = dateCreate;
+            Date = DateTime.Now;
             Tags = tags;
             State = state;
 
@@ -193,11 +194,28 @@ namespace Core
         [Required]
         public DateTime DateAdded { get; set; }
 
-        public DateTime DateChanget { get; set; }
+        public DateTime DateChange { get; set; }
 
         [ForeignKey("State")]
         public int StateId { get; set; }
         public State State { get; set; }
+
+        public Coment()
+        {
+
+        }
+
+        public Coment(int PostId, string UserId, string Text, int? ComentId=null)
+        {
+            this.PostId = PostId;
+            this.UserId = UserId;
+            this.Text = Text;
+
+            if (ComentId!=null)
+            this.ComentId = ComentId;
+
+            this.DateAdded = DateTime.Now;
+        }
     }
 
    

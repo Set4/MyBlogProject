@@ -3,22 +3,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebView.Web.Controllers;
 
-namespace WebView.Web.Controllers
+namespace WebView.API
 {
-    public class ComentController
+    public class ComentControllerAPI
     {
-      
+
         IAuthorization auth;
         IComentsLogic model;
 
-        public ComentController(IComentsLogic comentLogic, IAuthorization authContext)
+        public ComentControllerAPI(IComentsLogic comentLogic, IAuthorization authContext)
         {
             model = comentLogic;
             auth = authContext;
         }
 
     }
-
-   
 }

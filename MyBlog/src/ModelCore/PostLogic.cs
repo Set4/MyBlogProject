@@ -1,8 +1,8 @@
-﻿using Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace ModelCore
 {
@@ -12,7 +12,7 @@ namespace ModelCore
         List<Post> GetPostCollection(DateTime startRange, DateTime endRange);
 
         Post GetPost(int id);
-        Task<int> CreatePost(string title, string text, User author, DateTime dateCreate, List<TagCollection> tags, State state);
+        Task<int> CreatePost(string title, string text, User author, List<TagCollection> tags, State state);
         Task<int> ChangePost(Post post);
     }
 
@@ -32,7 +32,7 @@ namespace ModelCore
         /*
         
 
-            CREATE FUNCTION [dbo].[GetPostsByRange]
+            CREATE FUNCTION [dbo].[GetPostsByIndexRange]
 (
     @Index index,
     @Count count
@@ -45,31 +45,56 @@ RETURNS @returntable TABLE
 AS
 BEGIN
     INSERT @returntable
-    SELECT * FROM Posts WHERE Price < @price
+    SELECT * FROM Posts ORDER BY date DESC LIMIT index,count
     RETURN
 
 
 
 
-             System.Data.SqlClient.SqlParameter param = new System.Data.SqlClient.SqlParameter("@price", 26000);
-    var phones = db.Database.SqlQuery<Phone>("SELECT * FROM GetPhonesByPrice (@price)",param);
-    foreach (var phone in phones)
-        Console.WriteLine(phone.Name);
+             System.Data.SqlClient.SqlParameter param = new System.Data.SqlClient.SqlParameter("@index", index);
+                System.Data.SqlClient.SqlParameter param1 = new System.Data.SqlClient.SqlParameter("@count", count);
+    List<Post> posts = db.Database.SqlQuery<Posts>("SELECT * FROM GetPostsByRange (@index,@count)",param,param1);
+    
+
+
+
+          CREATE FUNCTION [dbo].[GetPostsByDateRange]
+(
+    @Index stardDate,
+    @Count endDate
+)
+RETURNS @returntable TABLE
+(
+    Id int,
+    i tak dalee perchislit vsy 
+)
+AS
+BEGIN
+    INSERT @returntable
+    SELECT * FROM Posts WHERE id >= stardDate AND id =< endDate ORDER BY date DESC
+    RETURN
+
+
+
         */
 
         public List<Post> GetPostCollection(int index = 1)
         {
 
-            //сортировать по дате, выбрать с  page-1*5+ до  page*5 и торорые доступны Состояние= public  LINQ TSQL
-            List<Post> posts =  db.Posts.Where(i => i.Id == 1).ToList();
-
+            System.Data.SqlClient.SqlParameter param = new System.Data.SqlClient.SqlParameter("@index", (index-1)*MAX_COUNT_POSTS+1);
+            System.Data.SqlClient.SqlParameter param1 = new System.Data.SqlClient.SqlParameter("@count", MAX_COUNT_POSTS);
+            List<Post> posts = db.Posts.FromSql("SELECT * FROM GetPostsByIndexRange (@index,@count)", param, param1).ToList();
+           
             return posts;
         }
 
         public List<Post> GetPostCollection(DateTime startRange, DateTime endRange)
         {
-            //сортировать по дате, выбрать с  startRange до endRange и торорые доступны Состояние= public 
-            return new List<Post>();
+            System.Data.SqlClient.SqlParameter param = new System.Data.SqlClient.SqlParameter("@stardDate", startRange);
+            System.Data.SqlClient.SqlParameter param1 = new System.Data.SqlClient.SqlParameter("@endDate", endRange);
+            List<Post> posts = db.Posts.FromSql("SELECT * FROM GetPostsByDateRange (@stardDate,@endDate)", param, param1).ToList();
+
+            return posts;
         }
 
         public Post GetPost(int id)
@@ -77,9 +102,9 @@ BEGIN
             return db.Posts.FirstOrDefault(p => p.Id == id);
         }
 
-        public async Task<int> CreatePost(string title, string text, User author, DateTime dateCreate, List<TagCollection> tags, State state)
+        public async Task<int> CreatePost(string title, string text, User author, List<TagCollection> tags, State state)
         {
-            Post newPost = new Post(title, text, author, dateCreate, tags, state);
+            Post newPost = new Post(title, text, author, tags, state);
             db.Posts.Add(newPost);
             await db.SaveChangesAsync();
             return newPost.Id;            
@@ -87,6 +112,7 @@ BEGIN
 
         public async Task<int> ChangePost(Post post)
         {
+            post.DateChange = DateTime.Now;
             db.Posts.Update(post);
             return await db.SaveChangesAsync();          
         }
