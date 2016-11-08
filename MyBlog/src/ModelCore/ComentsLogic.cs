@@ -11,8 +11,8 @@ namespace ModelCore
         List<Coment> GetComentCollection(int postId);
 
         Coment GetComent(int id);
-        Task<int> CreatePost(int PostId, string UserId, string Text, int? ComentId = null);
-        Task<int> ChangePost(Coment coment);
+        Task<int?> CreateComent(int PostId, string UserId, string Text, int? ComentId = null);
+        Task<int?> ChangeComent(Coment coment);
     }
 
     public class ComentsLogic : IComentsLogic
@@ -24,14 +24,14 @@ namespace ModelCore
             db = dbContext;           
         }
 
-        public async Task<int> ChangePost(Coment coment)
+        public async Task<int?> ChangeComent(Coment coment)
         {
             coment.DateChange = DateTime.Now;
             db.Coments.Update(coment);
             return await db.SaveChangesAsync();
         }
 
-        public async Task<int> CreatePost(int PostId, string UserId, string Text, int? ComentId = null)
+        public async Task<int?> CreateComent(int PostId, string UserId, string Text, int? ComentId = null)
         {
             Coment coment = new Coment(PostId, UserId, Text, ComentId);
             db.Coments.Add(coment);

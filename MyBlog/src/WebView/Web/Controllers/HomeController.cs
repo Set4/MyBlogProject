@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using ModelCore;
 
 namespace MyBlog.Controllers
 {
@@ -13,23 +14,27 @@ namespace MyBlog.Controllers
             return View();
         }
 
-        public IActionResult About()
+        [HttpGet("{id}")]
+        public IActionResult GetCommentCollection()
         {
-            ViewData["Message"] = "Your application description page.";
 
-            return View();
+            return PartialView("_GetCommentCollection",);
         }
 
-        public IActionResult Contact()
+        [HttpPost]
+        public IActionResult CreateComent(Coment coment)
         {
-            ViewData["Message"] = "Your contact page.";
 
-            return View();
+            return PartialView("_CreateComent",);
         }
 
-        public IActionResult Error()
+        [HttpPost]
+        public IActionResult ChangeComent(Coment coment)
         {
-            return View();
+
+            return PartialView("_ChangeComent",);
         }
+
+
     }
 }

@@ -9,8 +9,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 using System.IO;
 using System.Runtime.InteropServices;
-
-
+using System.Text;
 
 namespace ModelCore
 {
@@ -140,6 +139,9 @@ namespace ModelCore
         [Required]
         public Security Security { get; set; }
 
+        [Required]
+        public Access Access { get; set; }
+
         public ICollection<Privilege> Privilege { get; set; }
     }
 
@@ -149,6 +151,13 @@ namespace ModelCore
         public string Id { get; set; }
         [Required]
         public string Password { get; set; }
+    }
+
+    public class Access
+    {
+        [ForeignKey("Users")]
+        public string Id { get; set; }
+        [Required]
         public string Token { get; set; }
 
     }
@@ -302,4 +311,22 @@ namespace ModelCore
         }
     }
 
+
+    public static class CodeGenerator
+    {
+        private static Random random; 
+        public static string RandomString(int sizeCode)
+        {
+            random = new Random((int)DateTime.Now.Ticks);//thanks to McAden
+            StringBuilder builder = new StringBuilder();
+            char ch;
+            for (int i = 0; i < sizeCode; i++)
+            {
+                ch = Convert.ToChar(Convert.ToInt32(Math.Floor(26 * random.NextDouble() + 65)));
+                builder.Append(ch);
+            }
+            return builder.ToString();
+        }
+
+    }
 }

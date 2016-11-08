@@ -116,7 +116,5 @@ BEGIN
             db.Posts.Update(post);
             return await db.SaveChangesAsync();          
         }
-
-      
     }
 }
