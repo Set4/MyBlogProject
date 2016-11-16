@@ -10,6 +10,7 @@ namespace ModelCore
     {
         List<Post> GetPostCollection(int page);
         List<Post> GetPostCollection(DateTime startRange, DateTime endRange);
+        List<Post> GetPostCollection(User user);
 
         Post GetPost(int id);
         Task<int> CreatePost(string title, string text, User author, List<TagCollection> tags, State state);
@@ -76,6 +77,26 @@ BEGIN
 
 
 
+
+
+            CREATE FUNCTION [dbo].[GetPostsByUserId]
+(
+    @UserId userId
+   
+)
+RETURNS @returntable TABLE
+(
+    Id int,
+    i tak dalee perchislit vsy 
+)
+AS
+BEGIN
+    INSERT @returntable
+    SELECT * FROM Posts WHERE UserId == userId ORDER BY date DESC
+    RETURN
+
+
+
         */
 
         public List<Post> GetPostCollection(int index = 1)
@@ -93,6 +114,14 @@ BEGIN
             System.Data.SqlClient.SqlParameter param = new System.Data.SqlClient.SqlParameter("@stardDate", startRange);
             System.Data.SqlClient.SqlParameter param1 = new System.Data.SqlClient.SqlParameter("@endDate", endRange);
             List<Post> posts = db.Posts.FromSql("SELECT * FROM GetPostsByDateRange (@stardDate,@endDate)", param, param1).ToList();
+
+            return posts;
+        }
+
+        public List<Post> GetPostCollection(User user)
+        {
+            System.Data.SqlClient.SqlParameter param = new System.Data.SqlClient.SqlParameter("@userId", user.Id);
+            List<Post> posts = db.Posts.FromSql("SELECT * FROM GetPostsByUserId (@userId)", param).ToList();
 
             return posts;
         }
@@ -116,5 +145,7 @@ BEGIN
             db.Posts.Update(post);
             return await db.SaveChangesAsync();          
         }
+
+     
     }
 }

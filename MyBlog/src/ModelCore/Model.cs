@@ -106,8 +106,8 @@ namespace ModelCore
 
     public class User
     {
-        byte[] id;
-        public byte[] Id
+        string id;
+        public string Id
         {
             get
             {
@@ -116,7 +116,7 @@ namespace ModelCore
             set
             {
                 if (id==null)
-                    id = SequentialGuidGenerator.CreateGuid().ToByteArray();
+                    id = SequentialGuidGenerator.CreateGuid().ToByteArray().ToString();
                   //  Guid.NewGuid().ToString();
             }
         }
@@ -143,6 +143,31 @@ namespace ModelCore
         public Access Access { get; set; }
 
         public ICollection<Privilege> Privilege { get; set; }
+
+        public ICollection<Prize> Prize { get; set; }
+
+        public string ImagePath { get; set; }
+
+        public User()
+        { }
+
+        public User(string name, string email)
+        {
+            this.Name = name;
+            this.Email = email;
+            Date = DateTime.Now;
+        }
+
+    }
+
+    public class Prize
+    {
+        public int Id { get; set; }
+
+        [Required, MaxLength(20)]
+        public string Name { get; set; }
+
+        public string ImagePath { get; set; }
     }
 
     public class Security
@@ -151,6 +176,16 @@ namespace ModelCore
         public string Id { get; set; }
         [Required]
         public string Password { get; set; }
+
+        public Security()
+        { 
+        }
+
+        public Security(string IdUser, string Password)
+        {
+            this.Id = IdUser;
+            this.Password = Password;
+        }
     }
 
     public class Access
