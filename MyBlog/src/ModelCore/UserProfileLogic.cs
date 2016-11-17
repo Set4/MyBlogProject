@@ -7,8 +7,7 @@ namespace ModelCore
 {
     public interface IUserProfileLogic
     {
-        User GetUserProfile(string id);
-     
+        User GetUserProfile(string id);     
         Task<int> ChangeUserProfile(User user);
     }
 
@@ -26,15 +25,36 @@ namespace ModelCore
             db.Users.Update(user);
             return await db.SaveChangesAsync();
         }
-
-      
-
-
-    
-
         public User GetUserProfile(string id)
         {
             return db.Users.FirstOrDefault(u => u.Id == id);
         }
+
+      
+
+        public bool ProverkaSvobodenliEmail(string email)
+        {
+            if (db.Users.FirstOrDefault(u => u.Email == email) == null)
+                return true;
+            else
+                return false;
+        }
+
+        public bool ProverkaSvobodenliUserName(string userName)
+        {
+            if (db.Users.FirstOrDefault(u => u.Name == userName) == null)
+                return true;
+            else
+                return false;
+        }
+
+        public bool ProverkaProviniiPassword(string email, string password)
+        {
+            if (db.Users.FirstOrDefault(u => u.Email == email && u.Security.Password.Equals(password)) != null)
+                return true;
+            else
+                return false;
+        }
+
     }
 }

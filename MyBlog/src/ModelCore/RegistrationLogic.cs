@@ -31,6 +31,7 @@ namespace ModelCore
 
         ICodeSender sender;
 
+        UserProfileLogic userProfile;
 
         public  class _user
         {
@@ -51,6 +52,8 @@ namespace ModelCore
         {
             db = dbContext;
             this.sender = sender;
+
+            userProfile = new UserProfileLogic(db);
         }
 
 
@@ -80,18 +83,12 @@ namespace ModelCore
 
         public bool ProverkaSvobodenliEmail(string email)
         {
-            if (db.Users.FirstOrDefault(u => u.Email == email) == null)
-                return true;
-            else
-                return false;
+            return userProfile.ProverkaSvobodenliEmail(email);
         }
 
         public bool ProverkaSvobodenliUserName(string userName)
         {
-            if (db.Users.FirstOrDefault(u => u.Name == userName) == null)
-                return true;
-            else
-                return false;
+            return userProfile.ProverkaSvobodenliUserName(userName);
         }
 
 
