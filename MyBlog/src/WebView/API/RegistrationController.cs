@@ -4,55 +4,62 @@ using System.Linq;
 using System.Threading.Tasks;
 using ModelCore;
 using Microsoft.AspNetCore.Mvc;
-using WebView.Web.Controllers;
+using WebView.Web;
 
 namespace WebView.API
 {
-    public class RegistrationLogicController
+    [Route("api/[controller]", Name = "registration")]
+    public class RegistrationControllerAPI:Controller
     {
         IRegistrationLogic model;
         IAuthorization auth;
 
 
-        public RegistrationLogicController(IRegistrationLogic registrationLogic, IAuthorization authContext)
+        public RegistrationControllerAPI(IRegistrationLogic registrationLogic, IAuthorization authContext)
         {
             model = registrationLogic;
             auth = authContext;
         }
 
 
-        //надо подумать как лучше сделать
-
-        [HttpGet("{id}")]
-        public IActionResult Get(string userName)
+        [HttpGet("{userName}", Name = "username")]
+        public IActionResult ProverkaSvobodenliUserName(string userName)
         {
             bool result = model.ProverkaSvobodenliUserName(userName);
 
-            return new JsonResult(result);
+            return new OkObjectResult(result);
         }
 
-        [HttpGet("{id}")]
-        public IActionResult Get(string userEmail)
+        [HttpGet("{userEmail}", Name = "useremail")]
+        public IActionResult ProverkaSvobodenliEmail(string userEmail)
         {
             bool result = model.ProverkaSvobodenliEmail(userEmail);
 
-            return new JsonResult(result);
+            return new OkObjectResult(result);
         }
         
 
         // POST api/values
-        [HttpPost]
+        [HttpPost( Name ="preregistration")]
         public async Task<IActionResult> Post([FromBody]string name, [FromBody]string email, [FromBody]string password)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             bool result = model.PreRegistration(name, email, password);
 
-            return new JsonResult(result);
+            return new OkObjectResult(result);
         }
 
         // POST api/values
-        [HttpPost]
+        [HttpPost(Name = "endregistration")]
         public async Task<IActionResult> Post([FromBody]string code)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             bool result = await model.EndRegistration(code);
             return new JsonResult(result);
         }

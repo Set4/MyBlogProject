@@ -10,11 +10,12 @@ namespace ModelCore
     {
         List<Post> GetPostCollection(int page);
         List<Post> GetPostCollection(DateTime startRange, DateTime endRange);
-        List<Post> GetPostCollection(User user);
+        List<Post> GetPostCollection(string userId);
 
         Post GetPost(int id);
         Task<int> CreatePost(string title, string text, User author, List<TagCollection> tags, State state);
         Task<int> ChangePost(Post post);
+        Task<int?> DeletePost(int idPost);
     }
 
     public class PostLogic:IPostlogic
@@ -118,9 +119,9 @@ BEGIN
             return posts;
         }
 
-        public List<Post> GetPostCollection(User user)
+        public List<Post> GetPostCollection(string userId)
         {
-            System.Data.SqlClient.SqlParameter param = new System.Data.SqlClient.SqlParameter("@userId", user.Id);
+            System.Data.SqlClient.SqlParameter param = new System.Data.SqlClient.SqlParameter("@userId", userId);
             List<Post> posts = db.Posts.FromSql("SELECT * FROM GetPostsByUserId (@userId)", param).ToList();
 
             return posts;
@@ -145,7 +146,16 @@ BEGIN
             db.Posts.Update(post);
             return await db.SaveChangesAsync();          
         }
+        public async Task<int?> DeletePost(int idPost)
+        {
+           Post post= db.Posts.FirstOrDefault(p => p.Id == idPost);
+            if (post == null)
+                return null;
+            post.DateChange = DateTime.Now;
+            post.State.StateElement= StateEnum.Removed;
+            db.Posts.Update(post);
+            return await db.SaveChangesAsync();
+        }
 
-     
     }
 }

@@ -11,7 +11,7 @@ using WebView.Web.Controllers;
 namespace WebView.API
 {
 
-    [Route("api/[controller]")]
+    [Route("api/[controller]", Name ="post")]
     public class PostControllerAPI: Controller
     {
         IPostlogic model;
@@ -24,39 +24,49 @@ namespace WebView.API
             auth = authContext;
         }
 
-        // GET api/values
-        [HttpGet]
-        public IEnumerable<Post> Get()
-        {
-            //сложная логиа с обновлением постов по времени
-        }
+        //// GET api/values
+        //[HttpGet]
+        //public IEnumerable<Post> Get()
+        //{
+        //    //сложная логиа с обновлением постов по времени
+        //}
+
 
         // GET api/values/5
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-
             Post post = model.GetPost(id);
-            //if (post == null)
-            //    return new NotFoundResult();
+            if (post == null)
+                return NotFound();
 
-            return new JsonResult(post);
+            return new OkObjectResult(post);
         }
 
         // POST api/values
-        [HttpPost]
+        [HttpPost(Name ="create")]
         public async Task<IActionResult> Post([FromBody]string title, [FromBody]string text, [FromBody]User author, [FromBody]List<TagCollection> tags, [FromBody]State state)
         {
-           int id = await model.CreatePost(title, text, author, tags, state);
-           return new JsonResult(id);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            int id = await model.CreatePost(title, text, author, tags, state);
+
+            return new OkObjectResult(id);
         }
 
         // PUT api/values/5
-        [HttpPut("{id}")]
+        [HttpPut(Name ="change")]
         public async Task<IActionResult> Put([FromBody]Post post)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             int id = await model.ChangePost(post);
-            return new JsonResult(id);
+
+            return new OkObjectResult(id);
         }
 
         // DELETE api/values/5
@@ -64,7 +74,10 @@ namespace WebView.API
         public async Task<IActionResult> Delete(int id)
         {
             int? index = await model.DeletePost(id);
-            return new JsonResult(index);
+            if (index == null)
+                return BadRequest();
+
+            return new OkObjectResult(index);
         }
     }
 

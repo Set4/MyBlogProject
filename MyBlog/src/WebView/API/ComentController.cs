@@ -8,7 +8,8 @@ using WebView.Web.Controllers;
 
 namespace WebView.API
 {
-    public class ComentControllerAPI
+    [Route("api/[controller]", Name = "coment")]
+    public class ComentControllerAPI:Controller
     {
 
         IAuthorization auth;
@@ -25,40 +26,57 @@ namespace WebView.API
         {
             List<Coment> coments = model.GetComentCollection(id);
 
-            //if(coments==null)
-            // return   Error
+            if (coments == null)
+                return NotFound();
 
-            return new JsonResult(coments);
+            return new OkObjectResult(coments);
         }
 
         // POST api/values
-        [HttpPost]
+        [HttpPost(Name ="create")]
         public async Task<IActionResult> Post([FromBody]int PostId, [FromBody]string UserId, [FromBody]string Text, [FromBody]int? ComentId = null)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             int? id = await model.CreateComent(PostId, UserId, Text, ComentId);
-            //if(id==null)
-            // return   Error
-            return new JsonResult(id);
+            if (id == null)
+                return BadRequest();
+
+            return new OkObjectResult(id);
         }
 
         //PUT api/values/5
-        [HttpPut("{id}")]
+        [HttpPut(Name = "change")]
         public async Task<IActionResult> Put([FromBody]Coment coment)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             int? id = await model.ChangeComent(coment);
-            //if(id==null)
-            // return   Error
-            return new JsonResult(id);
+            if (id == null)
+                return BadRequest();
+
+            return new OkObjectResult(id);
         }
 
         // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpDelete("{idComent}")]
+        public async Task<IActionResult> Delete(int idComent)
         {
-            Coment coment = model.GetComent(id);
+       
+            Coment coment = model.GetComent(idComent);
+            if(coment==null)
+                return BadRequest();
             coment.State.StateElement = StateEnum.Removed;
 
-            return new JsonResult(await model.ChangeComent(coment));
+            int? id = await model.ChangeComent(coment);
+            if (id == null)
+                return BadRequest();
+
+            return new OkObjectResult(id);
         }
     }
 }

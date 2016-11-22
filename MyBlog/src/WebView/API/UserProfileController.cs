@@ -4,11 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WebView.Web.Controllers;
+using WebView.Web;
 
 namespace WebView.API
 {
-    public class UserProfileControllerAPI
+    [Route("api/[controller]",Name ="user")]
+    public class UserProfileControllerAPI:Controller
     {
         IUserProfileLogic model;
         IAuthorization auth;
@@ -23,33 +24,44 @@ namespace WebView.API
         [HttpGet("{id}")]
         public IActionResult Get(string userId)
         {
+            if(String.IsNullOrWhiteSpace(userId))
+                return BadRequest(userId);
+
             User user = model.GetUserProfile(userId);
 
-            //if(coments==null)
-            // return   Error
+            if (user == null)
+                return  NotFound();
 
-            return new JsonResult(user);
+            return new OkObjectResult(user);
         }
 
-
-        //PUT api/values/5
-        [HttpPut("{id}")]
+        [HttpPut()]
         public async Task<IActionResult> Put([FromBody] User user)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             int? id = await model.ChangeUserProfile(user);
-            //if(id==null)
-            // return   Error
-            return new JsonResult(id);
+            if(id==null)
+                return new NotFoundResult();
+
+            return new OkObjectResult(id);
         }
 
         // DELETE api/values/5
-        [HttpDelete("{id}")]
+        [HttpDelete("{userId}/delete")]
         public async Task<IActionResult> Delete(string userId)
         {
             User user = model.GetUserProfile(userId);
             user.State.StateElement = StateEnum.Removed;
 
-            return new JsonResult(await model.ChangeUserProfile(user));
+            int? id = await model.ChangeUserProfile(user);
+            if (id == null)
+                return new NotFoundResult();
+
+            return new NoContentResult();
         }
     }
 
