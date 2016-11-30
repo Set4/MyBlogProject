@@ -14,6 +14,8 @@ using System.Text;
 namespace ModelCore
 {
 
+
+
     public enum StateEnum
     {
         Public = 0,
@@ -22,69 +24,61 @@ namespace ModelCore
         Locked = 3
     }
 
-    public class State
-    {
-        public int Id { get; set; }
 
-       // [Range(1, 3)]
-        public StateEnum StateElement { get; set; }
-    }
 
 
     public class Post
     {
         public int Id { get; set; }
-
-
         [Required, MaxLength(300)]
         public string Title { get; set; }
         [Required]
         public string Text { get; set; }
 
-        [Column("Author"), Required]
-        public string UserId { get; set; }
-        public virtual User User { get; set; }
-
         [Required]
         public DateTime Date { get; set; }
         public DateTime DateChange { get; set; }
-        
+
+
         public int Views { get; set; }
 
+        [Required]
+        public StateEnum StateElement { get; set; }
 
         [ForeignKey("Ratings")]
         public int RatingId { get; set; }
         public Rating Rating { get; set; }
 
-        [ForeignKey("State")]
-        public int StateId { get; set; }
-        public State State { get; set; }
+        public ICollection<TagCollection> Tags { get; set; }
+
+        [Column("Author"), Required]
+        public string UserId { get; set; }
+        public virtual User User { get; set; }
 
 
         public ICollection<Coment> Coments { get; set; }
 
 
-        public ICollection<TagCollection> Tags { get; set; }
 
         public Post()
         {
             Tags = new List<TagCollection>();
         }
 
-        public Post(string title, string text, User author, List<TagCollection> tags, State state)
+        public Post(string title, string text, User author, List<TagCollection> tags, StateEnum state)
         {
             Title = title;
             Text = text;
             User = author;
             Date = DateTime.Now;
             Tags = tags;
-            State = state;
+            StateElement = state;
 
             Coments = new List<Coment>();
         }
     }
 
-   public class TagCollection
+    public class TagCollection
     {
         public int PostId { get; set; }
         public Post Post { get; set; }
@@ -101,8 +95,32 @@ namespace ModelCore
         [MaxLength(30)]
         public string ViewTag { get; set; }
 
-        public string Type { get; set; }
+        public TypeTagEnum Type { get; set; }
     }
+
+    public enum TypeTagEnum
+    {
+        Public = 0,
+        Removed = 1,
+        Hidden = 2,
+        Locked = 3
+    }
+
+
+    public class Rating
+    {
+        public int Id { get; set; }
+
+        public int Like { get; set; }
+        public int Dislike { get; set; }
+    }
+
+
+
+
+
+
+
 
     public class User
     {
@@ -117,10 +135,11 @@ namespace ModelCore
             {
                 if (id==null)
                     id = SequentialGuidGenerator.CreateGuid().ToByteArray().ToString();
-                  //  Guid.NewGuid().ToString();
+                    //  Guid.NewGuid().ToString();
             }
         }
-     
+
+
         [Required, MaxLength(20)]
         public string Name { get; set; }
         [Required]
@@ -132,9 +151,21 @@ namespace ModelCore
 
         public DateTime Date { get; set; }
 
-        [ForeignKey("State")]
-        public int StateId { get; set; }
-        public State State { get; set; }
+        public StateEnum StateElement { get; set; }
+
+
+        public ICollection<Privilege> Privilege { get; set; }
+
+        public ICollection<Prize> Prize { get; set; }
+
+        public string ImagePath { get; set; }
+
+
+
+
+
+
+
 
         [Required]
         public Security Security { get; set; }
@@ -142,11 +173,7 @@ namespace ModelCore
         [Required]
         public Access Access { get; set; }
 
-        public ICollection<Privilege> Privilege { get; set; }
 
-        public ICollection<Prize> Prize { get; set; }
-
-        public string ImagePath { get; set; }
 
         public User()
         { }
@@ -168,14 +195,40 @@ namespace ModelCore
         public string Name { get; set; }
 
         public string ImagePath { get; set; }
+
+        [Column("Author"), Required]
+        public string UserId { get; set; }
+        [ForeignKey("UserId")]
+        public virtual User User { get; set; }
     }
+
+
+    public class Privilege
+    {
+        public int Id { get; set; }
+
+        [Required, MaxLength(20)]
+        public string Name { get; set; }
+
+        [Column("Author"), Required]
+        public string UserId { get; set; }
+        [ForeignKey("UserId")]
+        public virtual User User { get; set; }
+    }
+
+
+
+
+
 
     public class Security
     {
-        [ForeignKey("Users")]
         public string Id { get; set; }
         [Required]
         public string Password { get; set; }
+
+        public string UserId { get; set; }
+        public User User { get; set; }
 
         public Security()
         { 
@@ -190,49 +243,42 @@ namespace ModelCore
 
     public class Access
     {
-        [ForeignKey("Users")]
         public string Id { get; set; }
         [Required]
         public string Token { get; set; }
 
-    }
-
-    public class Privilege
-    {
-        public int Id { get; set; }
-
-        [Required, MaxLength(20)]
-        public string Name { get; set; }
-
-        [Column("Author"), Required]
         public string UserId { get; set; }
-        public virtual User User { get; set; }
+        public User User { get; set; }
     }
 
 
 
-    
+
     public class Coment
     {
         public int Id { get; set; }
 
+
         [Required]
         public int PostId { get; set; }
+        [ForeignKey("PostId")]
         public virtual Post Post { get; set; }
 
         [Column("Author"), Required]
         public string UserId { get; set; }
         public virtual User User { get; set; }
 
-        [ForeignKey("Ratings")]
+
         public int RatingId { get; set; }
+        [ForeignKey("RatingId")]
         public Rating Rating { get; set; }
 
-        [ForeignKey("Coment")]
+
         public int? ComentId { get; set; }
+        [ForeignKey("ComentId")]
         public virtual Coment Reply { get; set; }
 
-        [Required, MaxLength(500)] 
+        [Required, MaxLength(500)]
         public string Text { get; set; }
 
         [Required]
@@ -240,13 +286,11 @@ namespace ModelCore
 
         public DateTime DateChange { get; set; }
 
-        [ForeignKey("State")]
-        public int StateId { get; set; }
-        public State State { get; set; }
+        [Required]
+        public StateEnum StateElement { get; set; }
 
         public Coment()
         {
-
         }
 
         public Coment(int PostId, string UserId, string Text, int? ComentId=null)
@@ -262,28 +306,26 @@ namespace ModelCore
         }
     }
 
-   
-    public class Rating
-    {
-        public int Id { get; set; }
-
-        public int Like { get; set; }
-        public int Dislike { get; set; }
-    }
-
-
-
-  
-
-
+    
     public class DataBaseContext : DbContext
     {
+
+        public DataBaseContext(DbContextOptions<DataBaseContext> options)
+            : base(options)
+        {
+        }
+
+
         public DbSet<Post> Posts { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Privilege> Privileges { get; set; }
         public DbSet<Coment> Coments { get; set; }
 
-      
+
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //   //optionsBuilder.UseSqlServer(@"Server=./SQLEXPRESS;Database=blogappdb;Trusted_Connection=True;");
+        //}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -292,18 +334,29 @@ namespace ModelCore
             modelBuilder.Entity<Security>();
             modelBuilder.Entity<Rating>();
 
-          
+
+
+            modelBuilder
+            .Entity<TagCollection>()
+            .HasKey(t => new { t.PostId, t.TagId });
+
+
+            modelBuilder
+           .Entity<User>()
+           .HasOne(u => u.Security)
+           .WithOne(p => p.User)
+           .HasForeignKey<Security>(p => p.UserId);
+
+            modelBuilder
+           .Entity<User>()
+           .HasOne(u => u.Access)
+           .WithOne(p => p.User)
+           .HasForeignKey<Access>(p => p.UserId);
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer(@"Server=./SQLEXPRESS;Database=blogappdb;Trusted_Connection=True;");
-        }
+      
 
-        public DataBaseContext(DbContextOptions<DataBaseContext> options)
-            : base(options)
-        {
-        }
+      
 
         //public DataBaseContext() 
         //{
@@ -325,6 +378,8 @@ namespace ModelCore
         //}
     }
    
+
+
     public class NativeMethods
     {
         [DllImport("rpcrt4.dll", SetLastError = true)]

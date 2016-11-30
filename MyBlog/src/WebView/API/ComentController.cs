@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ModelCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebView.Model;
+using WebView.Web;
 using WebView.Web.Controllers;
 
 namespace WebView.API
@@ -70,7 +71,7 @@ namespace WebView.API
             Coment coment = model.GetComent(idComent);
             if(coment==null)
                 return BadRequest();
-            coment.State.StateElement = StateEnum.Removed;
+            coment.StateElement = StateEnum.Removed;
 
             int? id = await model.ChangeComent(coment);
             if (id == null)

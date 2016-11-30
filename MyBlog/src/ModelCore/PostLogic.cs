@@ -13,7 +13,7 @@ namespace ModelCore
         List<Post> GetPostCollection(string userId);
 
         Post GetPost(int id);
-        Task<int> CreatePost(string title, string text, User author, List<TagCollection> tags, State state);
+        Task<int> CreatePost(string title, string text, User author, List<TagCollection> tags, StateEnum state);
         Task<int> ChangePost(Post post);
         Task<int?> DeletePost(int idPost);
     }
@@ -132,7 +132,7 @@ BEGIN
             return db.Posts.FirstOrDefault(p => p.Id == id);
         }
 
-        public async Task<int> CreatePost(string title, string text, User author, List<TagCollection> tags, State state)
+        public async Task<int> CreatePost(string title, string text, User author, List<TagCollection> tags, StateEnum state)
         {
             Post newPost = new Post(title, text, author, tags, state);
             db.Posts.Add(newPost);
@@ -152,7 +152,7 @@ BEGIN
             if (post == null)
                 return null;
             post.DateChange = DateTime.Now;
-            post.State.StateElement= StateEnum.Removed;
+            post.StateElement= StateEnum.Removed;
             db.Posts.Update(post);
             return await db.SaveChangesAsync();
         }

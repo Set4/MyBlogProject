@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using ModelCore;
+using WebView.Model;
 using MyBlog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebView.Web;
 using WebView.Web.Controllers;
 
 namespace WebView.API
@@ -45,7 +46,7 @@ namespace WebView.API
 
         // POST api/values
         [HttpPost(Name ="create")]
-        public async Task<IActionResult> Post([FromBody]string title, [FromBody]string text, [FromBody]User author, [FromBody]List<TagCollection> tags, [FromBody]State state)
+        public async Task<IActionResult> Post([FromBody]string title, [FromBody]string text, [FromBody]User author, [FromBody]List<TagCollection> tags, [FromBody]StateEnum state)
         {
             if (!ModelState.IsValid)
             {

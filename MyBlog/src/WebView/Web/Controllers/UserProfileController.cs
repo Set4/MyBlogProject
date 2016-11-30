@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ModelCore;
+using WebView.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,7 +52,7 @@ namespace WebView.API
         public async Task<IActionResult> DeleteUser(string userId)
         {
             User user = model.GetUserProfile(userId);
-            user.State.StateElement = StateEnum.Removed;
+            user.StateElement = StateEnum.Removed;
 
             int? id = await model.ChangeUserProfile(user);
             if (id == null)

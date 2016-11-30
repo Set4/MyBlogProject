@@ -7,8 +7,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Core;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using WebView.Model;
 
 namespace MyBlog
 {
@@ -21,6 +22,8 @@ namespace MyBlog
     {
         public Startup(IHostingEnvironment env)
         {
+
+
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
@@ -35,12 +38,24 @@ namespace MyBlog
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+            //var connection = @"=./SQLEXPRESS; Database = blogappdb; Trusted_Connection = True;";
+            //var connection = @"Server=(localdb)\mssqllocaldb;Database=blogappdb;Trusted_Connection=True;";
+            //services.AddDbContext<DataBaseContext>(options => options.UseSqlServer(connection));
+
+            services.AddDbContext<DataBaseContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+
+            /*
+
             // получаем строку подключения из файла конфигурации
-            string connection = Configuration.GetConnectionString("ConnectionStrings");
+            string connection = Configuration.GetConnectionString(@"Server =./SQLEXPRESS; Database = blogappdb; Trusted_Connection = True;");
             // добавляем контекст MobileContext в качестве сервиса в приложение
             services.AddDbContext<DataBaseContext>(options =>
                 options.UseSqlServer(connection));
 
+            */
             // Настройка параметров и DI
             services.AddOptions();
 

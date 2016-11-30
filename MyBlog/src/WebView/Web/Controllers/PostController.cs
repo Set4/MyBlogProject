@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using ModelCore;
+using WebView.Model;
 using MyBlog;
 using System;
 using System.Collections.Generic;
@@ -47,7 +47,7 @@ namespace WebView.Web.Controllers
             return PartialView("_GetPost", post);
         }
 
-        public async Task<IActionResult> CreatePost([FromBody]string title, [FromBody]string text, [FromBody]User author, [FromBody]List<TagCollection> tags, [FromBody]State stat)
+        public async Task<IActionResult> CreatePost([FromBody]string title, [FromBody]string text, [FromBody]User author, [FromBody]List<TagCollection> tags, [FromBody]StateEnum stat)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
