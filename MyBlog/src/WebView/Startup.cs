@@ -9,13 +9,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using WebView.Model;
+using WebBlog.Model;
+using WebBlog.DataAccess;
+using Pioneer.Pagination;
 
 namespace MyBlog
 {
     public class GlobalSetting
     {
-        public int MAX_COUNT_POSTS { get; set; }
+        public int MAX_VIEW_WEB_COUNT_POSTS { get; set; }
+        public int MAX_VIEW_API_COUNT_POSTS { get; set; }
     }
 
     public class Startup
@@ -28,7 +31,6 @@ namespace MyBlog
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .AddJsonFile("config.json") // подключаем файл конфигурации
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
         }
@@ -38,30 +40,22 @@ namespace MyBlog
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var configurationSection = Configuration.GetSection("DataBaseConnection");
+            DataAccess.Config.DBSource = configurationSection.GetValue<string>("DBSource");
+            DataAccess.Config.DBUserName = configurationSection.GetValue<string>("DBUserName");
+            DataAccess.Config.DBPassword = configurationSection.GetValue<string>("DBPassword");
+            DataAccess.Config.DBInitialCatalog = configurationSection.GetValue<string>("DBInitialCatalog");
 
-            //var connection = @"=./SQLEXPRESS; Database = blogappdb; Trusted_Connection = True;";
-            //var connection = @"Server=(localdb)\mssqllocaldb;Database=blogappdb;Trusted_Connection=True;";
-            //services.AddDbContext<DataBaseContext>(options => options.UseSqlServer(connection));
-
-            services.AddDbContext<DataBaseContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-
-
-            /*
-
-            // получаем строку подключения из файла конфигурации
-            string connection = Configuration.GetConnectionString(@"Server =./SQLEXPRESS; Database = blogappdb; Trusted_Connection = True;");
-            // добавляем контекст MobileContext в качестве сервиса в приложение
-            services.AddDbContext<DataBaseContext>(options =>
-                options.UseSqlServer(connection));
-
-            */
             // Настройка параметров и DI
             services.AddOptions();
 
             // создание объекта GlobalSetting по ключам из конфигурации
-            services.Configure<GlobalSetting>(Configuration);
+            //services.Configure<GlobalSetting>(Configuration);
 
+            services.Configure<GlobalSetting>(Configuration.GetSection("PostSettings"));
+
+            //add pagination nuget package
+            services.AddTransient<IPaginatedMetaService, PaginatedMetaService>();
 
             // Add framework services.
             services.AddMvc();
@@ -90,6 +84,11 @@ namespace MyBlog
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
+
+                routes.MapRoute(
+                    "start", "", new { controller = "Post", action = "GetPostCollection" });
+                routes.MapRoute(
+                   "posts", "page{page}/", new { controller = "Post", action = "GetPostCollection", page= @"^[1-9]\d*$" });
             });
         }
     }

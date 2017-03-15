@@ -1,27 +1,28 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using WebView.Model;
+using WebBlog.Model;
 using MyBlog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WebView.Web;
-using WebView.Web.Controllers;
+using WebBlog.Web;
+using WebBlog.Web.Controllers;
+using WebBlog.DataAccess.Model;
 
-namespace WebView.API
+namespace WebBlog.API
 {
 
     [Route("api/[controller]", Name ="post")]
     public class PostControllerAPI: Controller
     {
-        IPostlogic model;
+       
         IAuthorization auth;
 
 
-        public PostControllerAPI(IPostlogic postLogic, IAuthorization authContext)
+        public PostControllerAPI( IAuthorization authContext)
         {
-            model = postLogic;
+           
             auth = authContext;
         }
 
@@ -33,53 +34,53 @@ namespace WebView.API
         //}
 
 
-        // GET api/values/5
-        [HttpGet("{id}")]
-        public IActionResult Get(int id)
-        {
-            Post post = model.GetPost(id);
-            if (post == null)
-                return NotFound();
+        //// GET api/values/5
+        //[HttpGet("{id}")]
+        //public IActionResult Get(int id)
+        //{
+        //    Post post = model.GetPost(id);
+        //    if (post == null)
+        //        return NotFound();
 
-            return new OkObjectResult(post);
-        }
+        //    return new OkObjectResult(post);
+        //}
 
-        // POST api/values
-        [HttpPost(Name ="create")]
-        public async Task<IActionResult> Post([FromBody]string title, [FromBody]string text, [FromBody]User author, [FromBody]List<TagCollection> tags, [FromBody]StateEnum state)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            int id = await model.CreatePost(title, text, author, tags, state);
+        //// POST api/values
+        //[HttpPost(Name ="create")]
+        //public async Task<IActionResult> Post([FromBody]string title, [FromBody]string text, [FromBody]User author, [FromBody]List<TagCollection> tags, [FromBody]StateEnum state)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
+        //    int id = await model.CreatePost(title, text, author, tags, state);
 
-            return new OkObjectResult(id);
-        }
+        //    return new OkObjectResult(id);
+        //}
 
-        // PUT api/values/5
-        [HttpPut(Name ="change")]
-        public async Task<IActionResult> Put([FromBody]Post post)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            int id = await model.ChangePost(post);
+        //// PUT api/values/5
+        //[HttpPut(Name ="change")]
+        //public async Task<IActionResult> Put([FromBody]Post post)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
+        //    int id = await model.ChangePost(post);
 
-            return new OkObjectResult(id);
-        }
+        //    return new OkObjectResult(id);
+        //}
 
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            int? index = await model.DeletePost(id);
-            if (index == null)
-                return BadRequest();
+        //// DELETE api/values/5
+        //[HttpDelete("{id}")]
+        //public async Task<IActionResult> Delete(int id)
+        //{
+        //    int? index = await model.DeletePost(id);
+        //    if (index == null)
+        //        return BadRequest();
 
-            return new OkObjectResult(index);
-        }
+        //    return new OkObjectResult(index);
+        //}
     }
 
 
